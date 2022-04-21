@@ -62,6 +62,7 @@ jobs:
             
   DEV-Job:
     runs-on: ubuntu-latest
+    environment: development
     needs:  [RG-Job]
     env:
       AZURE-WEBAPP-NAME: dvd-mywebapp-dev
@@ -93,5 +94,42 @@ jobs:
         uses: Azure/webapps-deploy@v2
         with:
           app-name: ${{ steps.deploywebappd.outputs.webappname }}
+          # app-name: ${{ env.AZURE-WEBAPP-NAME }}
+          package: ${{ runner.temp }}/publish
+
+  PROD-Job:
+    runs-on: ubuntu-latest
+    environment: production
+    needs:  [DEV-Job]
+    env:
+      AZURE-WEBAPP-NAME: dvd-mywebapp-prod
+    steps:
+      - name: Download Templates
+        uses: actions/download-artificat@v3
+        with:
+          name: templates_artifact
+          path: ${{ runner.temp }}/templates
+      - name: Logon to Azure
+        uses: azure/login@v1
+        with:
+          creds: ${{secrets.AZURE_CREDENTIALS}}
+      - name: Deploy BICEP template
+        uses: azure/arm-deploy@v1
+        id: deploywebapp
+        with:
+          deploymentName: create-webapp
+          subscriptionId: ${{ env.AZURE_SUBSCRIPTION }}
+          resourceGroupName: ${{ env.AZURE_RG }}
+          template: ${{ runner.temp }}/templates/webapp.bicep
+          parameters: location=${{ ENV.AZURE-LOCATION }} appName=${{env.AZURE-WEBAPP-NAME}}
+      - name: Download Publish
+        uses: actions/download-artifact@v3
+        with:
+          name: publish_artifact
+          path: ${{ runner.temp }}/publish
+      - name: Azure WebApp
+        uses: Azure/webapps-deploy@v2
+        with:
+          app-name: ${{ steps.deploywebapp.outputs.webappname }}
           # app-name: ${{ env.AZURE-WEBAPP-NAME }}
           package: ${{ runner.temp }}/publish
