@@ -63,7 +63,7 @@ jobs:
   DEV-Job:
     runs-on: ubuntu-latest
     environment: development
-    needs:  [RG-Job]
+    needs:  [RG-Job, Build-Job]
     env:
       AZURE-WEBAPP-NAME: dvd-mywebapp-dev
     steps:
