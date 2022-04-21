@@ -68,7 +68,7 @@ jobs:
       AZURE-WEBAPP-NAME: dvd-mywebapp-dev
     steps:
       - name: Download Templates
-        uses: actions/download-artificat@v3
+        uses: actions/download-artifact@v3
         with:
           name: templates_artifact
           path: ${{ runner.temp }}/templates
@@ -105,7 +105,7 @@ jobs:
       AZURE-WEBAPP-NAME: dvd-mywebapp-prod
     steps:
       - name: Download Templates
-        uses: actions/download-artificat@v3
+        uses: actions/download-artifact@v3
         with:
           name: templates_artifact
           path: ${{ runner.temp }}/templates
